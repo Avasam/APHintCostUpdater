@@ -1,0 +1,11 @@
+[project]
+name = "APHintCostUpdater"
+version = "0"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "archipelagopy @ git+https://github.com/blackoutroulette/ArchipelagoPy.git",
+  "typed-argument-parser",
+]
+
+[dependency-groups]
+dev = ["ruff>=0.15.14"]
