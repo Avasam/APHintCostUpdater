@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "archipelagopy @ git+https://github.com/blackoutroulette/ArchipelagoPy.git",
+#   "typed-argument-parser",
+# ]
+# ///
 from __future__ import annotations
 
 import asyncio
@@ -92,7 +99,7 @@ async def run(args: Args):
         print("current hint cost:", client.hint_cost)
         print("new hint cost:", new_cost)
 
-        if not args.dry_run:
+        if client.hint_cost != new_cost and not args.dry_run:
             await client.send(Say(text=f"!admin login {args.password}"))
             await asyncio.sleep(1)
             await client.send(Say(text=f"!admin /option hint_cost {new_cost}"))
