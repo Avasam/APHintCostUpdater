@@ -1,3 +1,4 @@
+#!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
@@ -29,7 +30,7 @@ def compute_hint_cost(status_lines: list[str]) -> int:
             checks_total += int(m.group(2))
     if not checks_total:
         raise ValueError(f"No status data parsed from {len(status_lines)} lines")
-    return math.floor((1 - checks_done / checks_total) * INITIAL_HINT_COST)
+    return math.ceil((1 - checks_done / checks_total) * INITIAL_HINT_COST)
 
 
 class HintCostClient(Client):
@@ -54,7 +55,7 @@ class HintCostClient(Client):
         await self.send(
             Connect(
                 version=packet.version,
-                tags=["TextOnly"],
+                tags=["APHintCostUpdater"],
                 name=self.slot_name,
                 password=self.password or "",
             )
@@ -77,7 +78,6 @@ async def run(args: Args):
         args.host if "://" in args.host else f"https://{args.host}"
     )
     # This should be impossible as we expect "archipelago.gg:12345"
-
     assert parsed.hostname
     assert parsed.port
 
@@ -96,14 +96,25 @@ async def run(args: Args):
 
         new_cost = compute_hint_cost(client._status_lines)
 
-        print("current hint cost:", client.hint_cost)
-        print("new hint cost:", new_cost)
+        print("Current hint cost:", client.hint_cost)
+        command = f"/option hint_cost {new_cost}"
+        print(command)
 
-        if client.hint_cost != new_cost and args.password and not args.dry_run:
+        if client.hint_cost == new_cost:
+            print("Not sending command as the cost won't change")
+        elif not args.password:
+            print(
+                "Can't send admin command without having a room password. "
+                + "You can send the above command yourself"
+            )
+        elif args.dry_run:
+            print("Not actually sending the command in dry_run mode")
+        else:
             await client.send(Say(text=f"!admin login {args.password}"))
             await asyncio.sleep(1)
             await client.send(Say(text=f"!admin /option hint_cost {new_cost}"))
             await asyncio.sleep(1)
+            print("Hint cost updated!")
 
 
 class Args(Tap):
