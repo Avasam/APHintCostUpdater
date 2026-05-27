@@ -93,7 +93,9 @@ async def run(args: Args):
         print("new hint cost:", new_cost)
 
         if not args.dry_run:
-            await client.send(Say(text=f"!option hint_cost {new_cost}"))
+            await client.send(Say(text=f"!admin login {args.password}"))
+            await asyncio.sleep(1)
+            await client.send(Say(text=f"!admin /option hint_cost {new_cost}"))
             await asyncio.sleep(1)
 
 
