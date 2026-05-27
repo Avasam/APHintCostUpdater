@@ -55,7 +55,7 @@ class HintCostClient(Client):
         await self.send(
             Connect(
                 version=packet.version,
-                tags=["APHintCostUpdater"],
+                tags=["TextOnly", "APHintCostUpdater"],
                 name=self.slot_name,
                 password=self.password or "",
             )
