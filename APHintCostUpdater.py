@@ -22,14 +22,19 @@ from tap import Tap
 INITIAL_HINT_COST = 50
 STATUS_RE = re.compile(r"\((\d+)/(\d+)\)")
 
+
 def compute_hint_cost(status_lines: list[str]) -> int:
+    print("=" * 32)
     checks_done = checks_total = 0
     for line in status_lines:
+        print(line)
         if m := STATUS_RE.search(line):
             checks_done += int(m.group(1))
             checks_total += int(m.group(2))
     if not checks_total:
         raise ValueError(f"No status data parsed from {len(status_lines)} lines")
+    print("=" * 32)
+    print(f"Total checks: {checks_done}/{checks_total}")
     return math.ceil((1 - checks_done / checks_total) * INITIAL_HINT_COST)
 
 
@@ -94,7 +99,7 @@ async def run(args: Args):
         await client.send(Say(text="!status"))
         await asyncio.sleep(2)
 
-        new_cost = compute_hint_cost(client._status_lines)
+        new_cost = compute_hint_cost(client._status_lines[-1].split("\n"))
 
         print("Current hint cost:", client.hint_cost)
         command = f"/option hint_cost {new_cost}"
